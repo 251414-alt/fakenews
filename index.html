@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>진짜? 가짜? 뉴스 판별 게임</title>
+
+<style>
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+    font-family:"Pretendard","Malgun Gothic",sans-serif;
+}
+
+body{
+    background:linear-gradient(135deg,#eef2ff,#dbeafe);
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    min-height:100vh;
+}
+
+.container{
+    width:380px;
+    max-width:92%;
+}
+
+.card{
+    background:#fff;
+    border-radius:22px;
+    overflow:hidden;
+    box-shadow:0 15px 35px rgba(0,0,0,.15);
+    transition:.35s;
+}
+
+.card.correct{
+    border:5px solid #22c55e;
+    transform:scale(1.02);
+}
+
+.card.wrong{
+    border:5px solid #ef4444;
+    transform:scale(1.02);
+}
+
+.news-top{
+    background:#c40000;
+    color:white;
+    font-weight:bold;
+    text-align:center;
+    padding:10px;
+    letter-spacing:2px;
+}
+
+.image-wrap{
+    width:100%;
+    background:#eee;
+}
+
+.image-wrap img{
+    width:100%;
+    display:block;
+}
+
+.content{
+    padding:22px;
+}
+
+.title{
+    font-size:25px;
+    font-weight:900;
+    line-height:1.4;
+    text-align:center;
+}
+
+.reason{
+    margin-top:20px;
+    padding:15px;
+    border-radius:12px;
+    background:#f5f5f5;
+    display:none;
+    line-height:1.6;
+}
+
+.buttons{
+    display:flex;
+    gap:15px;
+    margin-top:25px;
+}
+
+button{
+    flex:1;
+    padding:14px;
+    border:none;
+    border-radius:12px;
+    font-size:18px;
+    font-weight:bold;
+    cursor:pointer;
+    transition:.2s;
+}
+
+button:hover{
+    transform:translateY(-2px);
+}
+
+.real{
+    background:#2563eb;
+    color:white;
+}
+
+.fake{
+    background:#111827;
+    color:white;
+}
+
+.next{
+    width:100%;
+    margin-top:15px;
+    background:#10b981;
+    color:white;
+    display:none;
+}
+
+.score{
+    text-align:center;
+    padding:40px;
+}
+
+.score h2{
+    font-size:34px;
+    margin-bottom:15px;
+}
+
+.score p{
+    font-size:22px;
+}
+
+.restart{
+    margin-top:25px;
+    background:#2563eb;
+    color:white;
+}
+</style>
+</head>
+<body>
+
+<div class="container">
+    <div class="card" id="card">
+
+        <div class="news-top">속보</div>
+
+        <div class="image-wrap" id="imageWrap"></div>
+
+        <div class="content">
+
+            <div class="title" id="headline"></div>
+
+            <div class="reason" id="reason"></div>
+
+            <div class="buttons">
+                <button class="real" onclick="check(false)">진짜</button>
+                <button class="fake" onclick="check(true)">가짜</button>
+            </div>
+
+            <button class="next" id="nextBtn" onclick="nextCard()">다음 ▶</button>
+
+        </div>
+
+    </div>
+</div>
+
+<script>
+// 아래 JSON 배열을 그대로 사용
+const data = [
+{
+  "headline": "윈터 남자친구만 5명 충격",
+  "isFake": true,
+  "reason": "윈터는 남자친구가 5명이 아니다",
+  "image": "winter.png"
+},
+{
+  "headline": "아이브 이서 To.X 커버 목소리가 환상적이라고 화제",
+  "isFake": true,
+  "reason": "이서는 그 곡을 커버한적이 없다",
+  "image": "AIsong.png"
+},
+{
+  "headline": "리센느 카라의 pretty girl 리메이크로 컴백",
+  // 원문의 furse는 오타이므로 false 처리
+  "isFake": false,
+  "reason": "사실이다",
+  "image": "kara.png"
+}
+];
+
+let index = 0;
+let score = 0;
+
+const headline = document.getElementById("headline");
+const imageWrap = document.getElementById("imageWrap");
+const reason = document.getElementById("reason");
+const card = document.getElementById("card");
+const nextBtn = document.getElementById("nextBtn");
+
+function loadCard(){
+
+    card.className="card";
+
+    reason.style.display="none";
+    nextBtn.style.display="none";
+
+    const item=data[index];
+
+    headline.textContent=item.headline;
+
+    if(item.image){
+        imageWrap.innerHTML=`<img src="${item.image}" alt="">`;
+    }else{
+        imageWrap.innerHTML="";
+    }
+
+    document.querySelectorAll(".buttons button").forEach(btn=>{
+        btn.disabled=false;
+    });
+}
+
+function check(userAnswer){
+
+    document.querySelectorAll(".buttons button").forEach(btn=>{
+        btn.disabled=true;
+    });
+
+    const item=data[index];
+
+    if(userAnswer===item.isFake){
+        score++;
+        card.classList.add("correct");
+    }else{
+        card.classList.add("wrong");
+    }
+
+    reason.style.display="block";
+    reason.innerHTML="<b>판별 이유</b><br>"+item.reason;
+
+    nextBtn.style.display="block";
+}
+
+function nextCard(){
+
+    index++;
+
+    if(index>=data.length){
+        showScore();
+    }else{
+        loadCard();
+    }
+
+}
+
+function showScore(){
+
+    card.innerHTML=`
+    <div class="score">
+        <h2>🎉 게임 종료!</h2>
+        <p>총 ${data.length}문제 중</p>
+        <h1 style="margin:20px 0;font-size:50px;color:#2563eb;">
+            ${score} / ${data.length}
+        </h1>
+        <p>맞혔습니다.</p>
+
+        <button class="restart" onclick="restart()">
+            다시하기
+        </button>
+    </div>
+    `;
+}
+
+function restart(){
+
+    index=0;
+    score=0;
+
+    card.innerHTML=`
+        <div class="news-top">속보</div>
+
+        <div class="image-wrap" id="imageWrap"></div>
+
+        <div class="content">
+
+            <div class="title" id="headline"></div>
+
+            <div class="reason" id="reason"></div>
+
+            <div class="buttons">
+                <button class="real" onclick="check(false)">진짜</button>
+                <button class="fake" onclick="check(true)">가짜</button>
+            </div>
+
+            <button class="next" id="nextBtn" onclick="nextCard()">다음 ▶</button>
+
+        </div>
+    `;
+
+    window.headline=document.getElementById("headline");
+    window.imageWrap=document.getElementById("imageWrap");
+    window.reason=document.getElementById("reason");
+    window.nextBtn=document.getElementById("nextBtn");
+
+    loadCard();
+}
+
+loadCard();
+</script>
+
+</body>
+</html>
