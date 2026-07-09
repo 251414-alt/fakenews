@@ -104,6 +104,11 @@ button:hover{
     transform:translateY(-2px);
 }
 
+button:disabled{
+    opacity:.7;
+    cursor:not-allowed;
+}
+
 .real{
     background:#2563eb;
     color:white;
@@ -171,7 +176,6 @@ button:hover{
 </div>
 
 <script>
-// 아래 JSON 배열을 그대로 사용
 const data = [
 {
   "headline": "윈터 남자친구만 5명 충격",
@@ -187,7 +191,6 @@ const data = [
 },
 {
   "headline": "리센느 카라의 pretty girl 리메이크로 컴백",
-  // 원문의 furse는 오타이므로 false 처리
   "isFake": false,
   "reason": "사실이다",
   "image": "kara.png"
@@ -197,60 +200,63 @@ const data = [
 let index = 0;
 let score = 0;
 
-const headline = document.getElementById("headline");
-const imageWrap = document.getElementById("imageWrap");
-const reason = document.getElementById("reason");
 const card = document.getElementById("card");
-const nextBtn = document.getElementById("nextBtn");
 
 function loadCard(){
 
-    card.className="card";
+    const headline = document.getElementById("headline");
+    const imageWrap = document.getElementById("imageWrap");
+    const reason = document.getElementById("reason");
+    const nextBtn = document.getElementById("nextBtn");
 
-    reason.style.display="none";
-    nextBtn.style.display="none";
+    card.className = "card";
 
-    const item=data[index];
+    reason.style.display = "none";
+    nextBtn.style.display = "none";
 
-    headline.textContent=item.headline;
+    const item = data[index];
+
+    headline.textContent = item.headline;
 
     if(item.image){
-        imageWrap.innerHTML=`<img src="${item.image}" alt="">`;
+        imageWrap.innerHTML = `<img src="${item.image}" alt="">`;
     }else{
-        imageWrap.innerHTML="";
+        imageWrap.innerHTML = "";
     }
 
     document.querySelectorAll(".buttons button").forEach(btn=>{
-        btn.disabled=false;
+        btn.disabled = false;
     });
 }
 
 function check(userAnswer){
 
+    const item = data[index];
+    const reason = document.getElementById("reason");
+    const nextBtn = document.getElementById("nextBtn");
+
     document.querySelectorAll(".buttons button").forEach(btn=>{
-        btn.disabled=true;
+        btn.disabled = true;
     });
 
-    const item=data[index];
-
-    if(userAnswer===item.isFake){
+    if(userAnswer === item.isFake){
         score++;
         card.classList.add("correct");
     }else{
         card.classList.add("wrong");
     }
 
-    reason.style.display="block";
-    reason.innerHTML="<b>판별 이유</b><br>"+item.reason;
+    reason.style.display = "block";
+    reason.innerHTML = `<b>판별 이유</b><br>${item.reason}`;
 
-    nextBtn.style.display="block";
+    nextBtn.style.display = "block";
 }
 
 function nextCard(){
 
     index++;
 
-    if(index>=data.length){
+    if(index >= data.length){
         showScore();
     }else{
         loadCard();
@@ -260,28 +266,32 @@ function nextCard(){
 
 function showScore(){
 
-    card.innerHTML=`
-    <div class="score">
-        <h2>🎉 게임 종료!</h2>
-        <p>총 ${data.length}문제 중</p>
-        <h1 style="margin:20px 0;font-size:50px;color:#2563eb;">
-            ${score} / ${data.length}
-        </h1>
-        <p>맞혔습니다.</p>
+    card.innerHTML = `
+        <div class="score">
+            <h2>🎉 게임 종료!</h2>
+            <p>총 ${data.length}문제 중</p>
 
-        <button class="restart" onclick="restart()">
-            다시하기
-        </button>
-    </div>
+            <h1 style="margin:20px 0;font-size:52px;color:#2563eb;">
+                ${score} / ${data.length}
+            </h1>
+
+            <p>맞혔습니다.</p>
+
+            <button class="restart" onclick="restart()">
+                다시하기
+            </button>
+        </div>
     `;
 }
 
 function restart(){
 
-    index=0;
-    score=0;
+    index = 0;
+    score = 0;
 
-    card.innerHTML=`
+    card.className = "card";
+
+    card.innerHTML = `
         <div class="news-top">속보</div>
 
         <div class="image-wrap" id="imageWrap"></div>
@@ -301,11 +311,6 @@ function restart(){
 
         </div>
     `;
-
-    window.headline=document.getElementById("headline");
-    window.imageWrap=document.getElementById("imageWrap");
-    window.reason=document.getElementById("reason");
-    window.nextBtn=document.getElementById("nextBtn");
 
     loadCard();
 }
