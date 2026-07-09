@@ -83,10 +83,18 @@ body{
     line-height:1.6;
 }
 
+.timer{
+    margin-top:20px;
+    text-align:center;
+    font-size:18px;
+    font-weight:bold;
+    color:#dc2626;
+}
+
 .buttons{
     display:flex;
     gap:15px;
-    margin-top:25px;
+    margin-top:20px;
 }
 
 button{
@@ -148,6 +156,7 @@ button:disabled{
 }
 </style>
 </head>
+
 <body>
 
 <div class="container">
@@ -163,6 +172,10 @@ button:disabled{
 
             <div class="reason" id="reason"></div>
 
+            <div class="timer">
+                ⏰ 남은 시간 : <span id="time">5</span>초
+            </div>
+
             <div class="buttons">
                 <button class="real" onclick="check(false)">진짜</button>
                 <button class="fake" onclick="check(true)">가짜</button>
@@ -176,6 +189,7 @@ button:disabled{
 </div>
 
 <script>
+
 const data = [
 {
   "headline": "윈터 남자친구만 5명 충격",
@@ -186,7 +200,7 @@ const data = [
 {
   "headline": "아이브 이서 To.X 커버 목소리가 환상적이라고 화제",
   "isFake": true,
-  "reason": "이서는 그 곡을 커버한적이 없다",
+  "reason": "이서는 그 곡을 커버한 적이 없다",
   "image": "AIsong.png"
 },
 {
@@ -199,8 +213,48 @@ const data = [
 
 let index = 0;
 let score = 0;
+let timer;
+let timeLeft = 5;
 
 const card = document.getElementById("card");
+
+function startTimer(){
+
+    clearInterval(timer);
+
+    timeLeft = 5;
+    document.getElementById("time").textContent = timeLeft;
+
+    timer = setInterval(()=>{
+
+        timeLeft--;
+
+        document.getElementById("time").textContent = timeLeft;
+
+        if(timeLeft <= 0){
+
+            clearInterval(timer);
+
+            document.querySelectorAll(".buttons button").forEach(btn=>{
+                btn.disabled = true;
+            });
+
+            const reason = document.getElementById("reason");
+            const nextBtn = document.getElementById("nextBtn");
+
+            reason.style.display = "block";
+            reason.innerHTML =
+            "<b>⏰ 시간 초과!</b><br>" + data[index].reason;
+
+            card.classList.add("wrong");
+
+            nextBtn.style.display = "block";
+
+        }
+
+    },1000);
+
+}
 
 function loadCard(){
 
@@ -209,54 +263,61 @@ function loadCard(){
     const reason = document.getElementById("reason");
     const nextBtn = document.getElementById("nextBtn");
 
-    card.className = "card";
+    card.className="card";
 
-    reason.style.display = "none";
-    nextBtn.style.display = "none";
+    reason.style.display="none";
+    nextBtn.style.display="none";
 
     const item = data[index];
 
     headline.textContent = item.headline;
 
     if(item.image){
-        imageWrap.innerHTML = `<img src="${item.image}" alt="">`;
+        imageWrap.innerHTML =
+        `<img src="${item.image}" alt="">`;
     }else{
-        imageWrap.innerHTML = "";
+        imageWrap.innerHTML="";
     }
 
     document.querySelectorAll(".buttons button").forEach(btn=>{
-        btn.disabled = false;
+        btn.disabled=false;
     });
+
+    startTimer();
+
 }
 
 function check(userAnswer){
+
+    clearInterval(timer);
 
     const item = data[index];
     const reason = document.getElementById("reason");
     const nextBtn = document.getElementById("nextBtn");
 
     document.querySelectorAll(".buttons button").forEach(btn=>{
-        btn.disabled = true;
+        btn.disabled=true;
     });
 
-    if(userAnswer === item.isFake){
+    if(userAnswer===item.isFake){
         score++;
         card.classList.add("correct");
     }else{
         card.classList.add("wrong");
     }
 
-    reason.style.display = "block";
-    reason.innerHTML = `<b>판별 이유</b><br>${item.reason}`;
+    reason.style.display="block";
+    reason.innerHTML="<b>판별 이유</b><br>"+item.reason;
 
-    nextBtn.style.display = "block";
+    nextBtn.style.display="block";
+
 }
 
 function nextCard(){
 
     index++;
 
-    if(index >= data.length){
+    if(index>=data.length){
         showScore();
     }else{
         loadCard();
@@ -266,32 +327,41 @@ function nextCard(){
 
 function showScore(){
 
-    card.innerHTML = `
-        <div class="score">
-            <h2>🎉 게임 종료!</h2>
-            <p>총 ${data.length}문제 중</p>
+    clearInterval(timer);
 
-            <h1 style="margin:20px 0;font-size:52px;color:#2563eb;">
-                ${score} / ${data.length}
-            </h1>
+    card.innerHTML=`
+    <div class="score">
 
-            <p>맞혔습니다.</p>
+        <h2>🎉 게임 종료!</h2>
 
-            <button class="restart" onclick="restart()">
-                다시하기
-            </button>
-        </div>
+        <p>총 ${data.length}문제 중</p>
+
+        <h1 style="margin:20px 0;font-size:55px;color:#2563eb;">
+        ${score} / ${data.length}
+        </h1>
+
+        <p>맞혔습니다!</p>
+
+        <button class="restart" onclick="restart()">
+            다시하기
+        </button>
+
+    </div>
     `;
+
 }
 
 function restart(){
 
+    clearInterval(timer);
+
     index = 0;
     score = 0;
 
-    card.className = "card";
+    card.className="card";
 
-    card.innerHTML = `
+    card.innerHTML=`
+
         <div class="news-top">속보</div>
 
         <div class="image-wrap" id="imageWrap"></div>
@@ -302,20 +372,30 @@ function restart(){
 
             <div class="reason" id="reason"></div>
 
+            <div class="timer">
+                ⏰ 남은 시간 :
+                <span id="time">5</span>초
+            </div>
+
             <div class="buttons">
                 <button class="real" onclick="check(false)">진짜</button>
                 <button class="fake" onclick="check(true)">가짜</button>
             </div>
 
-            <button class="next" id="nextBtn" onclick="nextCard()">다음 ▶</button>
+            <button class="next" id="nextBtn" onclick="nextCard()">
+                다음 ▶
+            </button>
 
         </div>
+
     `;
 
     loadCard();
+
 }
 
 loadCard();
+
 </script>
 
 </body>
